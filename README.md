@@ -1,17 +1,65 @@
-  # NetSage_AI
+# NetSage AI
 
-NetSage-AI is a Python-based network troubleshooting and diagnosis project designed to assist students and beginners in understanding common networking problems through structured analysis. The project focuses on a practical set of network troubleshooting scenarios rather than trying to act as a large-scale enterprise network management system.
+NetSage AI is a Cisco network troubleshooting assistant that helps engineers diagnose networking issues. It combines deterministic Python rules with Gemini-based reasoning to analyze command-line evidence and suggest accurate fixes.
 
-The current version of NetSage-AI works with 30 network troubleshooting cases. Each case contains relevant Cisco CLI output representing a particular networking problem. These cases cover common issues that can occur while configuring and maintaining computer networks, including duplicate IP addresses, incorrect subnet masks, gateway mismatches, interfaces being down, missing VLAN configurations, missing routes, and other configuration-related problems.
+## Project Overview
 
-The project follows a structured troubleshooting workflow in which the provided network information and CLI output are analyzed to identify the possible fault. The system uses predefined rules, structured data, and AI-assisted diagnosis to generate a meaningful explanation of the detected problem. The objective is not only to identify an error but also to provide information that can help a user understand why the problem occurred and what areas of the network configuration should be checked.
+NetSage AI is designed to accelerate problem resolution in Cisco environments. By running raw `show` command outputs through a strict deterministic rule checker first, and then passing those findings to the Gemini large language model, the system provides accurate, contextual troubleshooting advice while mitigating the risk of AI hallucination.
 
-NetSage-AI also includes a collection of test cases and validation scripts to verify different parts of the troubleshooting workflow. The project contains separate components for data handling, rule-based checking, AI-assisted diagnosis, validation, testing, and an interactive dashboard. This modular structure makes it easier to understand how the different stages of the system work together.
+The project follows a structured troubleshooting workflow in which deterministic checks provide a reliable foundation before AI-based reasoning is applied. This combination allows the system to analyze network evidence, identify potential issues, generate a diagnosis, and provide a recommended resolution that can then be reviewed and verified by an engineer.
 
-The dashboard provides a simple visual representation of the available troubleshooting information and project results. Supporting datasets are stored in structured formats such as CSV and JSON, while documentation and prompt files are maintained separately to make the project easier to study, modify, and extend.
+## Why Two Pipelines?
 
-The main purpose of NetSage-AI is educational and experimental. It demonstrates how traditional rule-based network troubleshooting can be combined with AI-assisted reasoning to create a more understandable diagnostic workflow. The project can be useful for students studying Computer Networks, Cisco networking, network troubleshooting, Python programming, and introductory applications of AI in technical problem solving.
+The project includes two distinct execution pipelines to serve different evaluation and operational needs.
 
-NetSage-AI is intentionally kept relatively small and focused. It is not intended to replace professional network monitoring or enterprise network management tools. Instead, it provides a controlled environment containing representative networking problems that can be used to understand troubleshooting concepts, experiment with diagnostic logic, and explore how AI can assist in explaining technical network issues.
+### 1. Historical 30-Case Pipeline
 
-The project can also be extended in the future by adding more network fault scenarios, expanding the dataset, introducing additional Cisco CLI commands, improving the diagnostic rules, adding more validation tests, and enhancing the dashboard with additional visualizations and troubleshooting information.
+The historical pipeline evaluates a fixed set of 30 Cisco troubleshooting cases that are used as a baseline for evaluating the system.
+
+The workflow:
+
+- Evaluates 30 fixed Cisco troubleshooting cases used as a baseline.
+- Takes pre-defined evidence from a CSV file.
+- Runs deterministic rule checking to identify relevant physical and configuration network states.
+- Generates a Gemini diagnosis based on the detected rules and symptoms.
+- Validates the generated output against a predefined schema.
+- Forces retries when the generated response does not satisfy the required format.
+- Includes a Human Review phase to evaluate the accuracy of the AI diagnosis.
+- Populates dashboard and evaluation metrics to demonstrate baseline performance.
+
+### 2. Live Interactive Pipeline
+
+The Live Interactive pipeline allows an engineer to investigate a completely new network problem that is not necessarily part of the historical 30-case dataset.
+
+The workflow:
+
+- Allows an engineer to enter a new network troubleshooting problem through the Live Diagnosis interface.
+- Takes custom symptoms, topology information, and Cisco `show` command evidence.
+- The browser sends the request to `local_server.py`.
+- The existing `rule_checker.py` and `diagnose.py` logic are reused for the new input.
+- Gemini generates a custom diagnosis based on the available evidence.
+- Validation and retry logic ensures that the generated response follows the required JSON structure.
+- Human Review allows the engineer to accept, edit, or reject the AI-generated diagnosis.
+- Cisco Packet Tracer can be used to manually verify the recommended fix.
+- The completed interaction is saved to the Live Session History.
+
+The Live Workflow is an extension of the original 30-case project. It does not replace the historical benchmark or modify the original evaluation dataset.
+
+## Architecture / Data Flow
+
+### Historical Pipeline
+
+```text
+30 Cases
+    ↓
+Evidence
+    ↓
+Rule Checker
+    ↓
+Gemini Diagnosis
+    ↓
+Validation
+    ↓
+Human Review
+    ↓
+Dashboard Metrics

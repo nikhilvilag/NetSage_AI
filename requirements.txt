@@ -1,0 +1,6 @@
+pandas
+pytest
+jsonschema
+matplotlib
+google-genai
+python-dotenv
